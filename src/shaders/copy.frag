@@ -1,10 +1,12 @@
-#ifdef GL_ES
+#version 300 es
+
 precision mediump float;
-#endif
 
 uniform sampler2D state;
-uniform vec2 scale;
+uniform vec2 environmentSize;
+
+out vec4 outColor;
 
 void main() {
-    gl_FragColor = texture2D(state, gl_FragCoord.xy / scale);
+    outColor = texture(state, gl_FragCoord.xy / environmentSize);
 }

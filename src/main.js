@@ -1,26 +1,34 @@
 (function () {
+
+  // STATIC PER-RUN CONFIGURATION
+
   // Cells have 6 friendly neighbor cells
   // These vectors define the birth and survival conditions in terms of
   // the number of live neighbors.
   var SURVIVAL_FROM_NEIGHBORS = [ 1, 2, 3, 4 ];
   var BIRTH_FROM_NEIGHBORS = [ 3, 4 ];
 
-  var ENVIRONMENT_SIZE = 256;
+  var SEED_DENSITY = 1.0;
+  var SEED_SIZE = 93;
+  var ENVIRONMENT_SIZE = 128;  // this should be "rendersize"
+
+  var CELL_SIZE = 5;
+  var CELL_WIDTH = 1;
+  var SPACE_WIDTH = 10;
+
+  // VARIABLE CONFIGURATION
 
   var FRAMERATE = 60;
-  var ITERATIONS_PER_FRAME = 1;
-  var CELL_SIZE = 1;
+  var ITERATIONS_PER_FRAME = 1000;
+
+
+
 
   var automaton = null;
 
-
   var setup = function () {
-    var canvas = document.getElementById("automata-draw-canvas");
-    canvas.width = ENVIRONMENT_SIZE * CELL_SIZE;
-    canvas.height = ENVIRONMENT_SIZE * CELL_SIZE;
-
     var $canvas = $("#automata-draw-canvas");
-    automaton = new GOL($canvas[0], CELL_SIZE).draw();
+    automaton = new GOL($canvas[0], CELL_SIZE, ENVIRONMENT_SIZE, ENVIRONMENT_SIZE, SEED_SIZE).draw();
   }
 
 
@@ -53,9 +61,9 @@
     };
 
     setup();
-    start(FRAMERATE);
+
     setTimeout(function () {
-      stop();
+      start(FRAMERATE);
     }, 2000);
   });
 })();

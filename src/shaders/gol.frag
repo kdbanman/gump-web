@@ -1,30 +1,52 @@
-#ifdef GL_ES
+#version 300 es
+
 precision mediump float;
-#endif
 
 uniform sampler2D state;
-uniform vec2 scale;
+uniform vec2 environmentSize;
 
-int get(vec2 offset) {
-    return int(texture2D(state, (gl_FragCoord.xy + offset) / scale).r);
+out vec4 outColor;
+
+
+int getState(vec2 offset) {
+    return int(texture(state, (gl_FragCoord.xy + offset) / environmentSize).r);
+}
+
+bool isHorizontalCell() {
+    return int(floor(gl_FragCoord.x)) % 2 == 1 && int(floor(gl_FragCoord.y)) % 2 == 0;
+}
+
+bool isVerticalCell() {
+    return int(floor(gl_FragCoord.x)) % 2 == 0 && int(floor(gl_FragCoord.y)) % 2 == 1;
 }
 
 void main() {
-    int sum =
-        get(vec2(-1.0, -1.0)) +
-        get(vec2(-1.0,  0.0)) +
-        get(vec2(-1.0,  1.0)) +
-        get(vec2( 0.0, -1.0)) +
-        get(vec2( 0.0,  1.0)) +
-        get(vec2( 1.0, -1.0)) +
-        get(vec2( 1.0,  0.0)) +
-        get(vec2( 1.0,  1.0));
-    if (sum == 3) {
-        gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);
-    } else if (sum == 2) {
-        float current = float(get(vec2(0.0, 0.0)));
-        gl_FragColor = vec4(current, current, current, 1.0);
+    int liveNeighbors;
+
+    if (isHorizontalCell()) {
+        liveNeighbors =
+            getState(vec2(-1.0, -1.0)) +
+            getState(vec2(-1.0,  1.0)) +
+            getState(vec2( 1.0,  1.0)) +
+            getState(vec2( 1.0, -1.0)) +
+            getState(vec2(-2.0,  0.0)) +
+            getState(vec2( 2.0,  0.0));
+    } else if (isVerticalCell()) {
+        liveNeighbors =
+            getState(vec2(-1.0, -1.0)) +
+            getState(vec2(-1.0,  1.0)) +
+            getState(vec2( 1.0,  1.0)) +
+            getState(vec2( 1.0, -1.0)) +
+            getState(vec2( 0.0, -2.0)) +
+            getState(vec2( 0.0,  2.0));
+    }
+
+    if (liveNeighbors == 3 || liveNeighbors == 4) {
+        outColor = vec4(1.0, 1.0, 1.0, 1.0);
+    } else if (liveNeighbors == 1 || liveNeighbors == 2) {
+        float current = float(getState(vec2(0.0, 0.0)));
+        outColor = vec4(current, current, current, 1.0);
     } else {
-        gl_FragColor = vec4(0.0, 0.0, 0.0, 1.0);
+        outColor = vec4(0.0, 0.0, 0.0, 1.0);
     }
 }

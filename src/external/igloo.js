@@ -56,7 +56,7 @@ Igloo.fetch = function(url, callback) {
 Igloo.getContext = function(canvas, options, noerror) {
     var gl;
     try {
-        gl = canvas.getContext('webgl', options || {}) ||
+        gl = canvas.getContext('webgl2', options || {}) ||
             canvas.getContext('experimental-webgl', options || {});
     } catch (e) {
         gl = null;
