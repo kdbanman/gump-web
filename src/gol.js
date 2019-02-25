@@ -1,6 +1,6 @@
 
 
-function GOL(canvas, cellSize, environmentWidth, environmentHeight, seedSize) {
+function GOL(canvas, cellSize, environmentWidth, environmentHeight, seedSize, seedDensity) {
   canvas.width = environmentWidth * cellSize;
   canvas.height = environmentHeight * cellSize;
 
@@ -31,7 +31,7 @@ function GOL(canvas, cellSize, environmentWidth, environmentHeight, seedSize) {
   this.framebuffers = {
     step: igloo.framebuffer()
   };
-  this.fillInterior(seedSize, seedSize, fillProbability = 1);
+  this.fillInterior(seedSize, seedSize, fillProbability = seedDensity);
 }
 
 /**

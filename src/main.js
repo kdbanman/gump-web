@@ -9,26 +9,27 @@
   var BIRTH_FROM_NEIGHBORS = [ 3, 4 ];
 
   var SEED_DENSITY = 1.0;
-  var SEED_SIZE = 93;
-  var ENVIRONMENT_SIZE = 128;  // this should be "rendersize"
+  var SEED_SIZE = 91;
+  var ENVIRONMENT_SIZE = SEED_SIZE + 8;  // this should be "rendersize"
 
-  var CELL_SIZE = 5;
+  var CELL_SIZE = 2;
   var CELL_WIDTH = 1;
   var SPACE_WIDTH = 10;
 
   // VARIABLE CONFIGURATION
 
   var FRAMERATE = 60;
-  var ITERATIONS_PER_FRAME = 1000;
+  var ITERATIONS_PER_FRAME = 3000;
 
 
 
-
+  var generations = 0;
+  var frames = 0;
   var automaton = null;
 
   var setup = function () {
     var $canvas = $("#automata-draw-canvas");
-    automaton = new GOL($canvas[0], CELL_SIZE, ENVIRONMENT_SIZE, ENVIRONMENT_SIZE, SEED_SIZE).draw();
+    automaton = new GOL($canvas[0], CELL_SIZE, ENVIRONMENT_SIZE, ENVIRONMENT_SIZE, SEED_SIZE, SEED_DENSITY).draw();
   }
 
 
@@ -38,14 +39,17 @@
   // have draw time variation/control.
   var draw = function () {
     for(var i = 0; i < ITERATIONS_PER_FRAME; i++) {
+      generations++;
       automaton.step();
     }
     automaton.draw();
+    frames++;
   }
 
 
   $(document).ready(function () {
-    var frameDrawTimer = null;
+    var frameDrawTimer;
+    var startTimeMillis;
 
     var start = function (framerate) {
       if (frameDrawTimer == null) {
@@ -53,6 +57,14 @@
           draw();
         }, 1000 / framerate);
       }
+
+      setInterval(() => {
+        var elapsedSeconds = (Date.now() - startTimeMillis) / 1000;
+        console.log(`IPS: ${generations / elapsedSeconds}`);
+        console.log(`FPS: ${frames / elapsedSeconds}`);
+        console.log(`Generations: ${generations}`);
+        console.log("");
+      }, 1000);
     };
 
     var stop = function () {
@@ -63,6 +75,7 @@
     setup();
 
     setTimeout(function () {
+      startTimeMillis = Date.now();
       start(FRAMERATE);
     }, 2000);
   });
