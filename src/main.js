@@ -17,13 +17,13 @@
   var SPACE_WIDTH = 10;
 
   // VARIABLE CONFIGURATION
-
+  var MEASUREMENT_INTERVAL_MILLISECONDS = 2000;
   var FRAMERATE = 60;
-  var ITERATIONS_PER_FRAME = 3000;
 
 
-
-  var generations = 0;
+  // APPLICATION STATE
+  var iterationsPerFrame = 1;
+  var iterations = 0;
   var frames = 0;
   var automaton = null;
 
@@ -38,11 +38,11 @@
   // countnig, lowpass) out here.  Could declare programs at setup time,
   // have draw time variation/control.
   var draw = function () {
-    for(var i = 0; i < ITERATIONS_PER_FRAME; i++) {
-      generations++;
+    for(var i = 0; i < iterationsPerFrame; i++) {
       automaton.step();
     }
     automaton.draw();
+    iterations += iterationsPerFrame;
     frames++;
   }
 
@@ -58,13 +58,22 @@
         }, 1000 / framerate);
       }
 
+      var lastMeasurementMillis = +Date.now()
+      var lastMeasurementFrames = frames;
+      var lastMeasurementIterations = iterations;
       setInterval(() => {
-        var elapsedSeconds = (Date.now() - startTimeMillis) / 1000;
-        console.log(`IPS: ${generations / elapsedSeconds}`);
-        console.log(`FPS: ${frames / elapsedSeconds}`);
-        console.log(`Generations: ${generations}`);
+        var measurementMillis = +Date.now();
+        var elapsedSeconds = (measurementMillis - lastMeasurementMillis) / 1000;
         console.log("");
-      }, 1000);
+        console.log(`IPF: ${iterationsPerFrame}`);
+        console.log(`FPS: ${(frames - lastMeasurementFrames) / elapsedSeconds}`);
+        console.log(`IPS: ${(iterations - lastMeasurementIterations) / elapsedSeconds}`);
+        console.log(`Iterations: ${iterations.toLocaleString()}`);
+
+        lastMeasurementMillis = measurementMillis;
+        lastMeasurementFrames = frames;
+        lastMeasurementIterations = iterations;
+      }, MEASUREMENT_INTERVAL_MILLISECONDS);
     };
 
     var stop = function () {
@@ -75,8 +84,14 @@
     setup();
 
     setTimeout(function () {
-      startTimeMillis = Date.now();
+      startTimeMillis = +Date.now();
       start(FRAMERATE);
     }, 2000);
+
+    var slider = document.getElementById("iterations-per-frame-slider");
+    slider.value = iterationsPerFrame;
+    slider.oninput = function () {
+      iterationsPerFrame = parseInt(this.value);
+    }
   });
 })();
